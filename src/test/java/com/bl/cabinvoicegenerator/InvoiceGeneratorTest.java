@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class InvoiceGeneratorTest {
+ public class InvoiceGeneratorTest {
     InvoiceService invoiceService;
 
     @Before
@@ -55,9 +55,51 @@ public class InvoiceGeneratorTest {
     }
 
     @Test
-    public void givenUserId_ShouldReturnInvoiceSummary() {
+    public void givenUserIdShouldReturnInvoiceSummary() {
         InvoiceSummary invoiceSummary = InvoiceService.getInvoice(3);
         InvoiceSummary expectedInvoiceSummery = new InvoiceSummary(2, 30);
         Assert.assertEquals(expectedInvoiceSummery.getInvoiceSummary(), invoiceSummary.getInvoiceSummary());
+   }
+
+@Test
+public void givenDistanceAndTimeWhenPremiumShouldReturnTotalFare() {
+    double distance = 5.0;
+    int time = 12;
+    String type = "premium";
+    double fare = invoiceService.calculateFare(distance, time, type);
+    Assert.assertEquals(99, fare, 0.0);
+
+}
+
+    @Test
+    public void givenLessDistanceAndTimeWhenGivenPremiumShouldReturnMinFare() {
+
+        double distance = 1.1;
+        int time = 2;
+        String type = "premium";
+        double fare = invoiceService.calculateFare(distance, time, type);
+        Assert.assertEquals(20.5, fare, 0.0);
+    }
+
+    @Test
+    public void givenMultipleRidesWhenGivenPremiumShouldReturnTotalFare() {
+
+        Ride[] rides = {new Ride(2.0, 5),
+                new Ride(0.1, 1)};
+        String type = "premium";
+        double totalFare = invoiceService.calculateFare(rides, type);
+        Assert.assertEquals(60, totalFare, 0.0);
+    }
+
+    @Test
+    public void givenMultipleRidesWhenGivenPremiumNotInProperFormatShouldReturnFalseInvoiceSummary() {
+        String type = "Premium";
+        Ride[] rides = {new Ride(3.0, 4),
+                new Ride(1.1, 1),
+        };
+        InvoiceSummary invoiceSummary = invoiceService.calculateTotalFare(rides, type);
+        InvoiceSummary expectedInvoices = new InvoiceSummary(2, 60.0);
+        Assert.assertEquals(expectedInvoices.getInvoiceSummary(), invoiceSummary.getInvoiceSummary());
     }
 }
+
